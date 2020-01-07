@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加新地址</title>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/angular.js"></script>
+
+</head>
+<body ng-app="listApp" ng-controller="listCtrl">
+姓名：<input id="name" type="text" ng-model="area.name">
+电话：<input id="tel" type="text" ng-model="area.city">
+<select id="province" onchange="var scope = angular.element(this).scope();scope.chooseCity(this.selectedIndex)" ng-model="area.province">
+    <option ng-repeat="pro in provinces" value="{{pro.name}}">{{pro.name}}</option>
+</select>
+<select id="city" onchange="var scope = angular.element(this).scope();scope.chooseArea(this.selectedIndex)" ng-model="area.city">
+    <option ng-repeat="city in citys" value="{{city.name}}">{{city.name}}</option>
+</select>
+<select id="area" ng-model="area.area">
+    <option ng-repeat="area in areas" value="{{area.name}}">{{area.name}}</option>
+</select><br>
+详细地址：<input id="address" type="text" ng-model="area.address">
+<input type="button" value="添加" ng-click="addAddress()">
+<script>
+    var app = angular.module("listApp",[]);
+    app.controller("listCtrl",function ($scope,$http) {
+        $http.get("../js/city_code.json").then(
+            function (response) {
+                $scope.provinces = response.data;
+                $scope.citys = $scope.provinces[0].city;
+                $scope.areas = $scope.citys[0].area;
+            }
+            $scope.chooseCity = function (index) {
+                $scope.citys = $scope.provinces[index].city;
+                $scope.areas = $scope.citys[0].area;
+                $scope.$apply();
+            }
+            $scope.chooseArea = function (index) {
+                $scope.areas = $scope.citys[index].area;
+                $scope.$apply();
+            }
+        )
+        $scope.addAddress = function () {
+            $http.post("/add",$scope.area).then(
+                function (response) {
+                    if (response.data.success){
+                        alert(response.data.message);
+                        window.location.href="list.html";
+                    }else{
+                        alert(response.data.message);
+                    }
+                }
+            )
+        }
+    })
+
+</script>
+</body>
+</html>
